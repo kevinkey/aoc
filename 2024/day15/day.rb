@@ -61,22 +61,13 @@ def move(map, pos, m, peek = false)
     when '[',']'
         if ['<', '>'].include?(m) or (next_obj == obj)
             valid = move(map, next_pos, m, peek)
-        elsif next_obj == '['
-            if move(map, next_pos, m, true)
-                right_pos = next_pos.clone
-                right_pos[0] += 1
-                if (valid = move(map, right_pos, m, true)) and !peek
-                    move(map, next_pos, m, false)
-                    move(map, right_pos, m, false)
-                end
-            end
         else
             if move(map, next_pos, m, true)
-                left_pos = next_pos.clone
-                left_pos[0] -= 1
-                if (valid = move(map, left_pos, m, true)) and !peek
+                other_pos = next_pos.clone
+                other_pos[0] += (next_obj == '[' ? 1 : -1)
+                if (valid = move(map, other_pos, m, true)) and !peek
                     move(map, next_pos, m, false)
-                    move(map, left_pos, m, false)
+                    move(map, other_pos, m, false)
                 end
             end
         end
