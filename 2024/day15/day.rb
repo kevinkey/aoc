@@ -33,7 +33,7 @@ def print_map(map)
     end
 end
 
-def move(map, pos, m)
+def move(map, pos, m, peek = false)
 
     next_pos = pos.clone
 
@@ -60,23 +60,29 @@ def move(map, pos, m)
         valid = false
     when '[',']'
         if ['<', '>'].include?(m) or (next_obj == obj)
-            valid = move(map, next_pos, m)
+            valid = move(map, next_pos, m, peek)
         elsif next_obj == '['
-            if move(map, next_pos, m)
+            if move(map, next_pos, m, true)
                 right_pos = next_pos.clone
                 right_pos[0] += 1
-                valid = move(map, right_pos, m)
+                if (valid = move(map, right_pos, m, true)) and !peek
+                    move(map, next_pos, m, false)
+                    move(map, right_pos, m, false)
+                end
             end
         else
-            if move(map, next_pos, m)
+            if move(map, next_pos, m, true)
                 left_pos = next_pos.clone
                 left_pos[0] -= 1
-                valid = move(map, left_pos, m)
+                if (valid = move(map, left_pos, m, true)) and !peek
+                    move(map, next_pos, m, false)
+                    move(map, left_pos, m, false)
+                end
             end
         end
     end
 
-    if valid
+    if valid and !peek
         map[next_pos[1]][next_pos[0]] = obj
         map[pos[1]][pos[0]] = '.'
         if obj == '@'
@@ -89,10 +95,7 @@ def move(map, pos, m)
 end
 
 moves.each do |m|
-    orig = Marshal.load(Marshal.dump(map))
-    if !move(map, pos, m)
-        map = orig
-    end
+    move(map, pos, m)
 end
 
 total = 0
